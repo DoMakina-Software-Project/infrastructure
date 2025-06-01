@@ -3,12 +3,12 @@ services:
     image: mysql:9.0
     container_name: domakina-db
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: core
-      MYSQL_USER: dbuser
-      MYSQL_PASSWORD: dbpassword
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "3316:3306"
+      - "${DB_PORT}:3306"
     volumes:
       - domakina_mysql_data:/var/lib/mysql
       - ./db/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -21,8 +21,8 @@ services:
           "-h",
           "db",
           "-u",
-          "dbuser",
-          "-pdbpassword",
+          "${DB_USER}",
+          "-p${DB_PASSWORD}",
         ]
       interval: 30s
       timeout: 10s
@@ -34,11 +34,11 @@ services:
     image: minio/minio:latest
     container_name: domakina-minio
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
-      - "9000:9000" # API Port
-      - "9001:9001" # Web UI Port
+      - "${MINIO_API_PORT}:9000" # API Port
+      - "${MINIO_CONSOLE_PORT}:9001" # Web UI Port
     volumes:
       - domakina_minio_data:/data
     command: server /data --console-address ":9001"
@@ -51,34 +51,34 @@ services:
       timeout: 10s
       retries: 5
 
-  frontend:
-    container_name: domakina-frontend
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    ports:
-      - "5173:80"
-    networks:
-      - domakina_network
-    env_file:
-      - ../frontend/.env
+  # frontend:
+  #   container_name: domakina-frontend
+  #   build:
+  #     context: ../frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "${FRONTEND_PORT}:80"
+  #   networks:
+  #     - domakina_network
+  #   env_file:
+  #     - ../frontend/.env
 
-  backend:
-    container_name: domakina-backend
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
-    ports:
-      - "4000:4000"
-    networks:
-      - domakina_network
-    env_file:
-      - ../backend/.env
-    depends_on:
-      db:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+  # backend:
+  #   container_name: domakina-backend
+  #   build:
+  #     context: ../backend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "${BACKEND_PORT}:4000"
+  #   networks:
+  #     - domakina_network
+  #   env_file:
+  #     - ../backend/.env
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #     minio:
+  #       condition: service_healthy
 
 volumes:
   domakina_mysql_data:
