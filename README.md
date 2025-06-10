@@ -6,11 +6,7 @@ This repository contains the infrastructure setup for the DoMakina project. It i
 
 - [Prerequisites](#prerequisites)
 - [Setup](#setup)
-- [Starting the Containers](#starting-the-containers)
-- [Stopping the Containers](#stopping-the-containers)
-- [Services](#services)
-- [Volumes](#volumes)
-- [Networks](#networks)
+
 
 ## Prerequisites
 
